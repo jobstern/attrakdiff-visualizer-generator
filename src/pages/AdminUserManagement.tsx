@@ -52,7 +52,7 @@ export default function AdminUserManagement() {
     // Upsert no role
     await supabase
       .from("user_roles")
-      .upsert({ user_id: userId, role: newRole }, { onConflict: ["user_id"] });
+      .upsert({ user_id: userId, role: newRole }, { onConflict: "user_id" });
     // Atualiza local
     setUsers(users =>
       users.map(u => (u.id === userId ? { ...u, role: newRole } : u))
