@@ -6,10 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { ATTRAKDIFF_QUESTIONS } from "@/lib/attrakdiff";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import AttrakDiffChart from "@/components/AttrakDiffChart";
 
 type Pool = {
   name: string;
@@ -36,22 +35,19 @@ const fetchPoolResults = async (poolId: string) => {
   const allAnswers = responsesData.map(r => r.answers.values);
 
   if (allAnswers.length === 0) {
-    return { pool: poolData, results: [], totalResponses: 0 };
+    return { pool: poolData, averageAnswers: [], totalResponses: 0 };
   }
 
   const numQuestions = ATTRAKDIFF_QUESTIONS.length;
-  const aggregatedResults = [];
+  const averageAnswers: number[] = [];
 
   for (let i = 0; i < numQuestions; i++) {
     const sum = allAnswers.reduce((acc, current) => acc + (current[i] || 0), 0);
     const average = sum / allAnswers.length;
-    aggregatedResults.push({
-      name: ATTRAKDIFF_QUESTIONS[i].label,
-      average: parseFloat(average.toFixed(2)),
-    });
+    averageAnswers.push(average);
   }
 
-  return { pool: poolData, results: aggregatedResults, totalResponses: allAnswers.length };
+  return { pool: poolData, averageAnswers: averageAnswers, totalResponses: allAnswers.length };
 };
 
 export default function PoolResults() {
@@ -83,52 +79,31 @@ export default function PoolResults() {
     return <div className="p-8 text-center">Pesquisa não encontrada.</div>;
   }
 
-  const { pool, results, totalResponses } = data;
-
-  const chartConfig = {
-    average: {
-      label: "Média",
-      color: "hsl(var(--chart-1))",
-    },
-  };
+  const { pool, averageAnswers, totalResponses } = data;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-5xl">
         <Button variant="ghost" onClick={() => navigate("/user/pools")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar para pesquisas
         </Button>
-        <Card>
-          <CardHeader>
-            <CardTitle>{pool.name}</CardTitle>
-            <CardDescription>{pool.description}</CardDescription>
-            <CardDescription>Total de respostas: {totalResponses}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {totalResponses > 0 ? (
-              <ChartContainer config={chartConfig} className="min-h-[400px] w-full">
-                <BarChart data={results} layout="vertical" margin={{ left: 100 }}>
-                  <CartesianGrid horizontal={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    width={180}
-                    className="text-xs"
-                  />
-                  <XAxis dataKey="average" type="number" domain={[1, 7]} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="average" fill="var(--color-average)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            ) : (
+        
+        <div className="mb-6 p-6 bg-card text-card-foreground rounded-lg border shadow-sm">
+            <h1 className="text-2xl font-semibold leading-none tracking-tight">{pool.name}</h1>
+            <p className="text-sm text-muted-foreground mt-1.5">{pool.description}</p>
+            <p className="text-sm text-muted-foreground mt-1.5">Total de respostas: {totalResponses}</p>
+        </div>
+
+        {totalResponses > 0 ? (
+          <AttrakDiffChart answers={averageAnswers} questions={ATTRAKDIFF_QUESTIONS} />
+        ) : (
+          <Card>
+            <CardContent className="pt-6">
               <div className="text-center py-10">Nenhuma resposta para esta pesquisa ainda.</div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
