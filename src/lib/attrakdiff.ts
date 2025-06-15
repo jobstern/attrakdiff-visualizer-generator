@@ -44,14 +44,24 @@ export const ATTRAKDIFF_QUESTIONS = [
   { id:28, label: "Pouco confiável — Confiável", code: "PQ" },
 ];
 
-// Mapeamento de codificação/escala para dimensões
-const CODES = ["PQ", "HQS", "HQI", "ATT"] as const;
-type Code = typeof CODES[number];
+// Novo array: questionário resumido (10 pares representativos do AttrakDiff)
+export const ATTRAKDIFF_QUESTIONS_SHORT = [
+  { id: 1, label: "Prático — Impraticável", code: "PQ" },
+  { id: 2, label: "Complicado — Simples", code: "PQ" },
+  { id: 3, label: "Desagradável — Agradável", code: "ATT" },
+  { id: 4, label: "Chato — Interessante", code: "ATT" },
+  { id: 8, label: "Conformista — Original", code: "HQI" },
+  { id:10, label: "Dirigido para mim — Me distancia", code: "HQS" },
+  { id:12, label: "Resistente — Flexível", code: "HQS" },
+  { id:15, label: "Conservador — Progressivo", code: "HQI" },
+  { id:24, label: "Pessimista — Otimista", code: "ATT" },
+  { id:28, label: "Pouco confiável — Confiável", code: "PQ" },
+];
 
-export function calculateAttrakDiff(scores: number[]): AttrakDiffResult {
-  // Agrupa resultados por dimensão
+// Função utilitária para calcular resultados independentemente do array de perguntas usado.
+export function calculateAttrakDiff(scores: number[], questions = ATTRAKDIFF_QUESTIONS): AttrakDiffResult {
   const grouped: { [code: string]: number[] } = { PQ: [], HQI: [], HQS: [], ATT: [] };
-  ATTRAKDIFF_QUESTIONS.forEach((q, idx) => {
+  questions.forEach((q, idx) => {
     grouped[q.code].push(scores[idx]);
   });
 

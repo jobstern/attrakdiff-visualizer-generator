@@ -4,9 +4,10 @@ import AttrakDiffForm from "../components/AttrakDiffForm";
 import AttrakDiffChart from "../components/AttrakDiffChart";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { ATTRAKDIFF_QUESTIONS } from "../lib/attrakdiff";
 
 export default function AttrakDiffSurvey() {
-  const [result, setResult] = useState<number[] | null>(null);
+  const [result, setResult] = useState<{ answers: number[]; questions: typeof ATTRAKDIFF_QUESTIONS } | null>(null);
   const navigate = useNavigate();
 
   return (
@@ -16,9 +17,11 @@ export default function AttrakDiffSurvey() {
           ← Voltar
         </Button>
         {!result ? (
-          <AttrakDiffForm onSubmit={setResult} />
+          <AttrakDiffForm
+            onSubmit={(answers, questions) => setResult({ answers, questions })}
+          />
         ) : (
-          <AttrakDiffChart answers={result} />
+          <AttrakDiffChart answers={result.answers} questions={result.questions} />
         )}
       </div>
     </div>

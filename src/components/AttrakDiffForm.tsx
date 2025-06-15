@@ -1,16 +1,30 @@
 
 import React, { useState } from "react";
-import { ATTRAKDIFF_QUESTIONS, AttrakDiffScale, calculateAttrakDiff } from "../lib/attrakdiff";
+import {
+  ATTRAKDIFF_QUESTIONS,
+  ATTRAKDIFF_QUESTIONS_SHORT,
+  AttrakDiffScale,
+} from "../lib/attrakdiff";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
+type QuestionnaireType = "completo" | "resumido";
+
 interface Props {
-  onSubmit: (answers: number[]) => void;
+  onSubmit: (answers: number[], questions: typeof ATTRAKDIFF_QUESTIONS) => void;
 }
 
 export default function AttrakDiffForm({ onSubmit }: Props) {
-  const [answers, setAnswers] = useState<(AttrakDiffScale | null)[]>(Array(28).fill(null));
+  const [questionnaire, setQuestionnaire] = useState<QuestionnaireType>("completo");
+  const questions = questionnaire === "completo" ? ATTRAKDIFF_QUESTIONS : ATTRAKDIFF_QUESTIONS_SHORT;
+
+  const [answers, setAnswers] = useState<(AttrakDiffScale | null)[]>(Array(questions.length).fill(null));
   const [submitting, setSubmitting] = useState(false);
+
+  // Atualizar answers quando trocar o tamanho do questionário
+  React.useEffect(() => {
+    setAnswers(Array(questions.length).fill(null));
+  }, [questionnaire]);
 
   const handleChange = (idx: number, value: AttrakDiffScale) => {
     setAnswers((prev) => {
@@ -29,8 +43,7 @@ export default function AttrakDiffForm({ onSubmit }: Props) {
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
-      // Aqui, enviamos as respostas
-      onSubmit(answers as number[]);
+      onSubmit(answers as number[], questions);
       toast({ title: "Respostas enviadas!" });
     }, 500);
   };
@@ -38,8 +51,28 @@ export default function AttrakDiffForm({ onSubmit }: Props) {
   return (
     <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Questionário AttrakDiff</h2>
+      <div className="mb-5 flex flex-wrap items-center gap-4">
+        <label className="font-medium flex items-center gap-2">
+          <input
+            type="radio"
+            checked={questionnaire === "completo"}
+            onChange={() => setQuestionnaire("completo")}
+            className="accent-blue-600 scale-110"
+            name="tipo"
+          />Completo (28 questões)
+        </label>
+        <label className="font-medium flex items-center gap-2">
+          <input
+            type="radio"
+            checked={questionnaire === "resumido"}
+            onChange={() => setQuestionnaire("resumido")}
+            className="accent-blue-600 scale-110"
+            name="tipo"
+          />Resumido (10 questões)
+        </label>
+      </div>
       <div className="space-y-6">
-        {ATTRAKDIFF_QUESTIONS.map((q, idx) => (
+        {questions.map((q, idx) => (
           <div key={q.id} className="flex items-center space-x-6 py-2 border-b last:border-0">
             <span className="w-60 text-sm font-medium text-gray-700">{q.label}</span>
             <div className="flex flex-1 justify-between">
