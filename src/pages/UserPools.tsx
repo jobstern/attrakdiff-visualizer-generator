@@ -5,6 +5,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { BarChart } from "lucide-react";
 
 type Pool = {
   id: string;
@@ -54,7 +55,13 @@ export default function UserPools() {
                   Início: {pool.start_date} - Fim: {pool.end_date}
                 </div>
               </div>
-              <Button onClick={() => navigate(`/pools/${pool.id}`)}>Responder</Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => navigate(`/pools/${pool.id}/results`)}>
+                  <BarChart className="mr-2 h-4 w-4" />
+                  Resultados
+                </Button>
+                <Button onClick={() => navigate(`/pools/${pool.id}`)}>Responder</Button>
+              </div>
             </li>
           ))}
         </ul>

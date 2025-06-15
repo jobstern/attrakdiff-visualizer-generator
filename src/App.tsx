@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import UserPools from "./pages/UserPools";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminPoolNew from "./pages/AdminPoolNew";
 import PoolSurvey from "./pages/PoolSurvey";
+import PoolResults from "./pages/PoolResults";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +30,7 @@ const App = () => (
           <Route path="/admin/users" element={<AdminUserManagement />} />
           <Route path="/user/pools" element={<UserPools />} />
           <Route path="/pools/:poolId" element={<PoolSurvey />} />
+          <Route path="/pools/:poolId/results" element={<PoolResults />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
