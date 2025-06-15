@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useSession } from "@/hooks/useSession";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -22,18 +21,21 @@ export default function AdminPools() {
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
       <h1 className="font-bold text-2xl mb-4">Painel do Administrador</h1>
-      {/* Aqui depois posso adicionar o CRUD de pools */}
       <div className="mb-8">
         <Button onClick={() => navigate("/admin/pools/new")}>
           Nova Pesquisa
         </Button>
       </div>
-      <div className="mb-12">
+      <div className="mb-4">
         <Button variant="outline" onClick={() => navigate("/admin/pools/csv")}>
           Importar CSV de respostas
         </Button>
       </div>
-      {/* Aqui listar pools existentes depois */}
+      <div className="mb-8">
+        <Button variant="ghost" onClick={() => navigate("/admin/users")}>
+          Gerenciar Usuários
+        </Button>
+      </div>
       <div>Listagem de pesquisas em breve…</div>
     </div>
   );
