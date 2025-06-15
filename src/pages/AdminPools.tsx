@@ -13,6 +13,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { LogOut } from "lucide-react"; // Ícone de sair
 
 type Pool = {
   id: string;
@@ -41,6 +42,12 @@ export default function AdminPools() {
       });
   }, [user]);
 
+  // Função para sair
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
   if (loadingSession || loadingRole || loadingPools) return <div>Carregando...</div>;
   if (!user) {
     navigate("/auth");
@@ -52,7 +59,18 @@ export default function AdminPools() {
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="font-bold text-2xl mb-4">Painel do Administrador</h1>
+      {/* Barra superior com Sair */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="font-bold text-2xl">Painel do Administrador</h1>
+        <Button
+          variant="outline"
+          className="flex gap-2 items-center"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Sair</span>
+        </Button>
+      </div>
       <div className="mb-8">
         <Button onClick={() => navigate("/admin/pools/new")}>
           Nova Pesquisa
