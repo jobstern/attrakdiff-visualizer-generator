@@ -1,15 +1,47 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import { useSession } from "@/hooks/useSession";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+
+type Pool = {
+  id: string;
+  name: string;
+  description: string | null;
+  start_date: string;
+  end_date: string;
+};
 
 export default function AdminPools() {
   const { user, loading: loadingSession } = useSession();
   const { role, loading: loadingRole } = useUserRole(user?.id);
+  const [pools, setPools] = useState<Pool[]>([]);
+  const [loadingPools, setLoadingPools] = useState(true);
   const navigate = useNavigate();
 
-  if (loadingSession || loadingRole) return <div>Carregando...</div>;
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pools")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setPools(data);
+        setLoadingPools(false);
+      });
+  }, [user]);
+
+  if (loadingSession || loadingRole || loadingPools) return <div>Carregando...</div>;
   if (!user) {
     navigate("/auth");
     return null;
@@ -36,7 +68,32 @@ export default function AdminPools() {
           Gerenciar Usuários
         </Button>
       </div>
-      <div>Listagem de pesquisas em breve…</div>
+      
+      <h2 className="font-semibold text-lg mb-2 mt-8">Pesquisas disponíveis</h2>
+      {pools.length === 0 ? (
+        <div className="text-muted-foreground">Nenhuma pesquisa cadastrada ainda.</div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Início</TableHead>
+              <TableHead>Fim</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pools.map(pool => (
+              <TableRow key={pool.id}>
+                <TableCell className="font-semibold">{pool.name}</TableCell>
+                <TableCell>{pool.description || <span className="text-gray-400">—</span>}</TableCell>
+                <TableCell>{pool.start_date}</TableCell>
+                <TableCell>{pool.end_date}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }
