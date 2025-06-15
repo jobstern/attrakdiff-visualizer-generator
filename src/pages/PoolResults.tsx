@@ -46,7 +46,7 @@ const fetchPoolResults = async (poolId: string) => {
     const sum = allAnswers.reduce((acc, current) => acc + (current[i] || 0), 0);
     const average = sum / allAnswers.length;
     aggregatedResults.push({
-      name: ATTRAKDIFF_QUESTIONS[i].word_pair.join(" / "),
+      name: ATTRAKDIFF_QUESTIONS[i].label,
       average: parseFloat(average.toFixed(2)),
     });
   }
