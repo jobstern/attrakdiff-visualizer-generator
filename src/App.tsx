@@ -10,6 +10,7 @@ import AuthPage from "./pages/Auth";
 import AdminPools from "./pages/AdminPools";
 import UserPools from "./pages/UserPools";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminPoolNew from "./pages/AdminPoolNew";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/admin/pools" element={<AdminPools />} />
+          <Route path="/admin/pools/new" element={<AdminPoolNew />} />
           <Route path="/admin/users" element={<AdminUserManagement />} />
           <Route path="/user/pools" element={<UserPools />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
