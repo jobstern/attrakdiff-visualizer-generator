@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
+type Role = "admin" | "user";
+
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<Role>("user");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState<string | null>(null);
@@ -25,14 +28,33 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      // 1. Cadastra usuário
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: window.location.origin + "/" }
       });
-      if (error) setError(error.message);
-      else toast({ title: "Cadastro realizado! Confirme o email." });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Salva perfil na tabela user_roles (se possível)
+      // Pode não haver user_id imediatamente; pega do user se possível
+      const userId = data?.user?.id;
+      if (userId) {
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role });
+        if (roleError) {
+          setError("Usuário criado, mas houve erro ao definir o perfil.");
+        }
+      }
+      toast({ title: "Cadastro realizado! Confirme o email." });
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
@@ -63,9 +85,31 @@ export default function AuthPage() {
           minLength={6}
           onChange={e => setPassword(e.target.value)}
         />
+        {mode === "signup" && (
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700" htmlFor="role">
+              Perfil:
+            </label>
+            <select
+              className="border rounded px-2 py-1 w-full"
+              id="role"
+              value={role}
+              onChange={e => setRole(e.target.value as Role)}
+            >
+              <option value="user">Usuário</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        )}
         {error && <div className="text-red-600 text-sm">{error}</div>}
-        <Button type="submit" disabled={loading}>{loading ? "Enviando..." : mode === "login" ? "Entrar" : "Cadastrar"}</Button>
-        <Button variant="outline" type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Enviando..." : mode === "login" ? "Entrar" : "Cadastrar"}
+        </Button>
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => setMode(mode === "login" ? "signup" : "login")}
+        >
           {mode === "login" ? "Criar conta" : "Já tem conta? Entrar"}
         </Button>
       </form>
