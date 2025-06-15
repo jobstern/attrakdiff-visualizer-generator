@@ -5,7 +5,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BarChart } from "lucide-react";
+import { BarChart, LogOut } from "lucide-react";
 
 type Pool = {
   id: string;
@@ -21,6 +21,11 @@ export default function UserPools() {
   const [pools, setPools] = useState<Pool[]>([]);
   const [loadingPools, setLoadingPools] = useState(true);
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -41,7 +46,13 @@ export default function UserPools() {
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="font-bold text-2xl mb-5">Selecione uma Pesquisa</h1>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="font-bold text-2xl">Selecione uma Pesquisa</h1>
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
+        </Button>
+      </div>
       {pools.length === 0 ? (
         <div>Nenhuma pesquisa disponível.</div>
       ) : (

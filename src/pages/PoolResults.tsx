@@ -7,7 +7,7 @@ import { useSession } from "@/hooks/useSession";
 import { ATTRAKDIFF_QUESTIONS } from "@/lib/attrakdiff";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import AttrakDiffChart from "@/components/AttrakDiffChart";
 
 type Pool = {
@@ -55,6 +55,11 @@ export default function PoolResults() {
   const { session, loading: loadingSession } = useSession();
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["poolResults", poolId],
     queryFn: () => fetchPoolResults(poolId!),
@@ -84,10 +89,16 @@ export default function PoolResults() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
       <div className="w-full max-w-5xl">
-        <Button variant="ghost" onClick={() => navigate("/user/pools")} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para pesquisas
-        </Button>
+        <div className="flex justify-between items-center mb-4">
+          <Button variant="ghost" onClick={() => navigate("/user/pools")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para pesquisas
+          </Button>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
+          </Button>
+        </div>
         
         <div className="mb-6 p-6 bg-card text-card-foreground rounded-lg border shadow-sm">
             <h1 className="text-2xl font-semibold leading-none tracking-tight">{pool.name}</h1>
